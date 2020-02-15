@@ -52,8 +52,8 @@ public class FormView extends Div {
         createFormLayout(wrapper);
         createButtonLayout(wrapper);
 
-        // Bind fields. This where you'd define e.g. validation rules
-        binder.bindInstanceFields(this);
+        /*// Bind fields. This where you'd define e.g. validation rules
+        binder.bindInstanceFields(this);*/
 
         cancel.addClickListener(e -> binder.readBean(null));
         save.addClickListener(e -> {

@@ -1,6 +1,10 @@
 package com.maxmayev.application.views.masterdetail;
 
+import com.maxmayev.application.backend.dto.EmployeeDTO;
 import com.maxmayev.application.backend.service.BackendService;
+import com.maxmayev.application.backend.service.ProcessingEmployeeService;
+import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.data.binder.BeanValidationBinder;
 import org.springframework.beans.factory.annotation.Autowired;
 
 
@@ -33,19 +37,24 @@ public class MasterDetailView extends Div implements AfterNavigationObserver {
     @Autowired
     private BackendService service;
 
+    private ProcessingEmployeeService employeeService;
+
     private Grid<Employee> employees;
 
-    private TextField firstname = new TextField();
-    private TextField lastname = new TextField();
-    private TextField email = new TextField();
-    private PasswordField password = new PasswordField();
+    private TextField firstname = new TextField("First name");
+    private TextField lastname = new TextField("Last Name");
+    private TextField email = new TextField("Email");
+    private TextArea title = new TextArea("Title");
 
     private Button cancel = new Button("Cancel");
     private Button save = new Button("Save");
 
-    private Binder<Employee> binder;
+    private Binder<EmployeeDTO> binder = new BeanValidationBinder<>(EmployeeDTO.class);
 
-    public MasterDetailView() {
+    private Binder<Employee> binderE;
+
+    public MasterDetailView(ProcessingEmployeeService processingEmployeeService) {
+        this.employeeService = processingEmployeeService;
         setId("master-detail-view");
         // Configure Grid
         employees = new Grid<>();
@@ -54,15 +63,17 @@ public class MasterDetailView extends Div implements AfterNavigationObserver {
         employees.addColumn(Employee::getFirstname).setHeader("First name");
         employees.addColumn(Employee::getLastname).setHeader("Last name");
         employees.addColumn(Employee::getEmail).setHeader("Email");
+        employees.addColumn(Employee::getTitle).setHeader("Title");
 
         //when a row is selected or deselected, populate form
         employees.asSingleSelect().addValueChangeListener(event -> populateForm(event.getValue()));
 
         // Configure Form
-        binder = new Binder<>(Employee.class);
+        binderE = new Binder<Employee>(Employee.class);
 
         // Bind fields. This where you'd define e.g. validation rules
         binder.bindInstanceFields(this);
+        binderE.bindInstanceFields(this);
         // note that password field isn't bound since that property doesn't exist in
         // Employee
 
@@ -70,7 +81,12 @@ public class MasterDetailView extends Div implements AfterNavigationObserver {
         cancel.addClickListener(e -> employees.asSingleSelect().clear());
 
         save.addClickListener(e -> {
-            Notification.show("Not implemented");
+            submitEmployee();
+            String msg = String.format(
+                    "Thank you, employee was submitted!");
+            Notification.show(msg, 3000, Notification.Position.MIDDLE);
+            init();
+
         });
 
         SplitLayout splitLayout = new SplitLayout();
@@ -78,10 +94,21 @@ public class MasterDetailView extends Div implements AfterNavigationObserver {
 
         createGridLayout(splitLayout);
         createEditorLayout(splitLayout);
+        // enable save button only if the bean is valid
+        binder.addStatusChangeListener(e -> save.setEnabled(binder.isValid()));
+        init();
 
         add(splitLayout);
     }
 
+    private void submitEmployee() {
+        employeeService.add(binder.getBean().toEmployee());
+    }
+
+    private void init() {
+        binderE.setBean(new Employee());
+        binder.setBean(new EmployeeDTO());
+    }
     private void createEditorLayout(SplitLayout splitLayout) {
         Div editorDiv = new Div();
         editorDiv.setId("editor-layout");
@@ -89,7 +116,7 @@ public class MasterDetailView extends Div implements AfterNavigationObserver {
         addFormItem(editorDiv, formLayout, firstname, "First name");
         addFormItem(editorDiv, formLayout, lastname, "Last name");
         addFormItem(editorDiv, formLayout, email, "Email");
-        addFormItem(editorDiv, formLayout, password, "Password");
+        addFormItem(editorDiv, formLayout, title, "Title");
         createButtonLayout(editorDiv);
         splitLayout.addToSecondary(editorDiv);
     }
@@ -130,9 +157,7 @@ public class MasterDetailView extends Div implements AfterNavigationObserver {
 
     private void populateForm(Employee value) {
         // Value can be null as well, that clears the form
-        binder.readBean(value);
-
-        // The password field isn't bound through the binder, so handle that
-        password.setValue("");
+        binderE.readBean(value);
+      //  title.setValue("");
     }
 }
