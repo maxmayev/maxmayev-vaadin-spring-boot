@@ -2,6 +2,7 @@ package com.maxmayev.application;
 
 import com.maxmayev.application.backend.security.SecurityUtils;
 import com.maxmayev.application.views.login.LoginView;
+import com.maxmayev.application.views.login.RegistrationView;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.server.ServiceInitEvent;
@@ -26,8 +27,8 @@ public class ConfigureUIServiceInitListener implements VaadinServiceInitListener
      *            before navigation event with event details
      */
     private void beforeEnter(BeforeEnterEvent event) {
-        if (!LoginView.class.equals(event.getNavigationTarget()) //
-                && !SecurityUtils.isUserLoggedIn()) { //
+        if (!LoginView.class.equals(event.getNavigationTarget() ) //
+                && !SecurityUtils.isUserLoggedIn() && !RegistrationView.class.equals(event.getNavigationTarget())) { //
             event.rerouteTo(LoginView.class); //
         }
     }
