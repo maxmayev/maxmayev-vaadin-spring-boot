@@ -25,6 +25,13 @@ public class Employee {
 
     }
 
+    public Employee(String firstname, String lastname, String email, String title){
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.email = email;
+        this.title = title;
+    }
+
     public String getFirstname() {
         return firstname;
     }
