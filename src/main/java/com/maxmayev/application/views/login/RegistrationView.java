@@ -21,7 +21,7 @@ import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
 
 
-@Tag("sa-register-view")
+//@Tag("sa-register-view")
 @Route(value = RegistrationView.ROUTE)
 @PageTitle("Registration")
 public class RegistrationView extends VerticalLayout {
@@ -34,12 +34,12 @@ public class RegistrationView extends VerticalLayout {
     private TextField username = new TextField("User Name");
     private PasswordField password = new PasswordField("Password");
 
-    @Autowired
     public RegistrationView(RegistrationService service) {
         this.service = service;
         // Build the layout
         H1 heading = new H1("Registration new user");
         Button submit = new Button("Register");
+        setDefaultHorizontalComponentAlignment(FlexLayout.Alignment.CENTER);
         add(
                 heading,
                 username,
